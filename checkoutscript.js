@@ -68,62 +68,31 @@ document.getElementById("checkout-form").addEventListener("submit", async functi
 
   const orderData = await res.json();
 
-  // ✅ Step 2: Open Razorpay Checkout
-  var options = {
-    key: "rzp_test_RGFvmNP1FiIT6V", // Public key only
-    amount: orderData.amount,
+console.log('Creating Razorpay payment...');
+var options = {
+    key: "rzp_test_RGFvmNP1FiIT6V",
+    amount: orderData.amount, // Ensure this is in paise
     currency: "INR",
     name: "Millet Bites",
     description: "Product Purchase",
-    order_id: orderData.id, // Razorpay order_id from backend
+    order_id: orderData.id,
     handler: async function (response) {
-      // ✅ Step 3: Verify payment on backend
-      const verifyRes = await fetch("verify_payment.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          response: response,
-          customer: customer,
-          cart: orderCart,
-          total: total
-        })
-      });
-
-      const result = await verifyRes.json();
-
-      if (result.status === "success") {
-        // Save details for success modal (like before)
-        localStorage.setItem("paymentSuccess", JSON.stringify({
-          customer: customer,
-          cart: orderCart,
-          total: total,
-          paymentId: response.razorpay_payment_id
-        }));
-
-        localStorage.removeItem("orderTotal");
-        localStorage.removeItem("orderCart");
-
-        window.location.href = "index.html";
-      } else {
-        // Save failure info
-        localStorage.setItem("paymentFailure", "true");
-        window.location.href = "index.html";
-      }
+        console.log('Payment Response:', response);
+        // Proceed with verification
     },
     prefill: {
-      name: customer.name,
-      email: customer.email,
-      contact: customer.phone,
+        name: customer.name,
+        email: customer.email,
+        contact: customer.phone,
     },
     theme: { color: "#3399cc" },
     modal: {
-      ondismiss: function () {
-        localStorage.setItem("paymentFailure", "true");
-        window.location.href = "index.html";
-      }
+        ondismiss: function () {
+            console.log("Payment modal dismissed by user");
+            localStorage.setItem("paymentFailure", "true");
+            window.location.href = "index.html";
+        }
     }
-  };
-
-  var rzp1 = new Razorpay(options);
-  rzp1.open();
-});
+};
+var rzp1 = new Razorpay(options);
+rzp1.open();
