@@ -1,8 +1,8 @@
-
 // ✅ Get order details from localStorage
 var total = parseFloat(localStorage.getItem("orderTotal")) || 0;
 var orderCart = JSON.parse(localStorage.getItem("orderCart")) || {};
 
+// ✅ Render order summary
 function renderOrderSummary() {
   const orderItemsDiv = document.getElementById("order-items");
   const orderTotalP = document.getElementById("order-total");
@@ -17,15 +17,21 @@ function renderOrderSummary() {
   for (const productName in orderCart) {
     const item = orderCart[productName];
 
+    // Quantity text
     let qtyText = item.product.type === "combo"
       ? `${item.quantity} Pack${item.quantity > 1 ? "s" : ""}`
       : item.quantity >= 1000
         ? (item.quantity / 1000).toFixed(2) + " kg"
         : item.quantity + " g";
 
-    let itemPrice = item.product.type === "combo"
-      ? item.quantity * item.product.price
-      : (item.quantity / (item.product.pricePer === 250 ? 250 : 100)) * item.product.price;
+    // Item price
+    let itemPrice = 0;
+    if (item.product.type === "combo") {
+      itemPrice = item.quantity * item.product.price;
+    } else {
+      const unit = item.product.pricePer === 250 ? 250 : 100;
+      itemPrice = (item.quantity / unit) * item.product.price;
+    }
 
     html += `<li>${productName} - ${qtyText} - ₹${itemPrice.toFixed(2)}</li>`;
   }
@@ -38,10 +44,10 @@ function renderOrderSummary() {
 document.addEventListener("DOMContentLoaded", renderOrderSummary);
 
 // ✅ Handle payment
-document.getElementById("checkout-form").addEventListener("submit", async function (e) {
+document.getElementById("checkout-form").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  const customer = {
+  var customer = {
     name: document.getElementById("name").value,
     phone: document.getElementById("phone").value,
     email: document.getElementById("email").value,
@@ -59,40 +65,67 @@ document.getElementById("checkout-form").addEventListener("submit", async functi
     return;
   }
 
-  // ✅ Step 1: Ask backend to create Razorpay order
-  const res = await fetch("create_order.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ total: total, customer: customer, cart: orderCart })
-  });
-
-  const orderData = await res.json();
-
-console.log('Creating Razorpay payment...');
-var options = {
-    key: "rzp_test_RGFvmNP1FiIT6V",
-    amount: orderData.amount, // Ensure this is in paise
+  var options = {
+    key: "rzp_test_RGFvmNP1FiIT6V", // Replace with your Razorpay Key
+    amount: parseInt(total) * 100, // in paise
     currency: "INR",
     name: "Millet Bites",
     description: "Product Purchase",
-    order_id: orderData.id,
-    handler: async function (response) {
-        console.log('Payment Response:', response);
-        // Proceed with verification
+    handler: function (response) {
+      // ✅ Prepare order data for Google Sheets
+      const orderData = {
+        customer: customer,
+        paymentId: response.razorpay_payment_id,
+        total: total,
+        items: Object.keys(orderCart).map(name => {
+          const item = orderCart[name];
+          let itemPrice = item.product.type === "combo"
+            ? item.quantity * item.product.price
+            : (item.quantity / (item.product.pricePer === 250 ? 250 : 100)) * item.product.price;
+
+          return {
+            name: name,
+            quantity: item.product.type === "combo"
+              ? `${item.quantity} Pack${item.quantity > 1 ? "s" : ""}`
+              : item.quantity >= 1000
+                ? (item.quantity / 1000).toFixed(2) + " kg"
+                : item.quantity + " g",
+            price: itemPrice
+          };
+        })
+      };
+
+      // ✅ Save success details in localStorage
+      localStorage.setItem("paymentSuccess", JSON.stringify({
+        customer: customer,
+        cart: orderCart,
+        total: total,
+        paymentId: response.razorpay_payment_id
+      }));
+
+      // ✅ Clear local cart storage
+      localStorage.removeItem("orderTotal");
+      localStorage.removeItem("orderCart");
+
+      // Redirect to home page
+      window.location.href = "index.html";
     },
     prefill: {
-        name: customer.name,
-        email: customer.email,
-        contact: customer.phone,
+      name: customer.name,
+      email: customer.email,
+      contact: customer.phone,
     },
-    theme: { color: "#3399cc" },
+    theme: {
+      color: "#3399cc",
+    },
     modal: {
-        ondismiss: function () {
-            console.log("Payment modal dismissed by user");
-            localStorage.setItem("paymentFailure", "true");
-            window.location.href = "index.html";
-        }
+      ondismiss: function () {
+        localStorage.setItem("paymentFailure", "true");
+        window.location.href = "index.html";
+      }
     }
-};
-var rzp1 = new Razorpay(options);
-rzp1.open();
+  };
+
+  var rzp1 = new Razorpay(options);
+  rzp1.open();
+});"
