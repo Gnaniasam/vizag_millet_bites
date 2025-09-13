@@ -1,27 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Load cart and total from localStorage
-  let cart = JSON.parse(localStorage.getItem("orderCart")) || {};
-  let total = parseFloat(localStorage.getItem("orderTotal")) || 0;
+  // ✅ Try orderCart first (retry flow), else fallback to cart
+  let cart = JSON.parse(localStorage.getItem("orderCart")) 
+          || JSON.parse(localStorage.getItem("cart")) 
+          || {};
+  let total = 0;
 
   const orderItemsTbody = document.getElementById("order-items");
   const orderTotalP = document.getElementById("order-total");
   const checkoutForm = document.getElementById("checkout-form");
 
-  // Helper: format quantity string for display
+  // Helper: format quantity
   function formatQuantity(item) {
     if (item.product.type === "combo") {
       return `${item.quantity} Pack${item.quantity > 1 ? "s" : ""}`;
     } else {
       const unit = item.product.pricePer === 250 ? 250 : 100;
-      if (item.quantity >= 1000) {
-        return (item.quantity / 1000).toFixed(2) + " kg";
-      } else {
-        return item.quantity + " g";
-      }
+      return item.quantity >= 1000
+        ? (item.quantity / 1000).toFixed(2) + " kg"
+        : item.quantity + " g";
     }
   }
 
-  // Helper: compute item total price
+  // Helper: compute subtotal
   function computeItemTotal(item) {
     if (item.product.type === "combo") {
       return item.quantity * item.product.price;
@@ -31,17 +31,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Populate the table body
+  // ✅ Populate table
   if (Object.keys(cart).length === 0) {
     orderItemsTbody.innerHTML =
       `<tr><td colspan="3" style="text-align:center; padding:12px;">Your cart is empty.</td></tr>`;
     orderTotalP.textContent = "";
   } else {
-    orderItemsTbody.innerHTML = ""; // clear existing rows
+    orderItemsTbody.innerHTML = "";
+    total = 0;
     for (const productName in cart) {
       const item = cart[productName];
       const itemTotal = computeItemTotal(item);
-      const qtyText = formatQuantity(item);
+      total += itemTotal;
 
       const tr = document.createElement("tr");
 
@@ -49,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tdName.innerHTML = `<strong>${productName}</strong>`;
 
       const tdQty = document.createElement("td");
-      tdQty.textContent = qtyText;
+      tdQty.textContent = formatQuantity(item);
 
       const tdPrice = document.createElement("td");
       tdPrice.textContent = `₹${itemTotal.toFixed(2)}`;
@@ -61,78 +62,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       orderItemsTbody.appendChild(tr);
     }
-
     orderTotalP.textContent = "Total: ₹" + total.toFixed(2);
   }
 
-  // Handle checkout form submission (Razorpay flow)
-  checkoutForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    if (Object.keys(cart).length === 0) {
-      alert("Your cart is empty. Please add items before checkout.");
-      return;
-    }
-
-    // Collect customer info
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const door = document.getElementById("door").value.trim();
-    const street = document.getElementById("street").value.trim();
-    const area = document.getElementById("area").value.trim();
-    const nearby = document.getElementById("nearby").value.trim() || "";
-    const city = document.getElementById("city").value.trim();
-    const state = document.getElementById("state").value.trim();
-    const pincode = document.getElementById("pincode").value.trim();
-
-    const customer = { name, phone, email, door, street, area, nearby, city, state, pincode };
-
-    // Razorpay options - replace key with your actual key
-    const options = {
-      key: "rzp_test_RGFvmNP1FiIT6V", // TODO: replace with your Razorpay key
-      amount: Math.round(total * 100), // amount in paise (integer)
-      currency: "INR",
-      name: "Millet Bites",
-      description: "Order Payment",
-      handler: function (response) {
-        // Save success summary
-        const orderSummary = {
-          cart,
-          total,
-          customer,
-          paymentId: response.razorpay_payment_id
-        };
-        localStorage.setItem("paymentSuccess", JSON.stringify(orderSummary));
-        // Clear cart
-        localStorage.removeItem("orderCart");
-        localStorage.removeItem("orderTotal");
-        // Redirect to home (or success page)
-        window.location.href = "index.html#home";
-      },
-      prefill: {
-        name: name,
-        email: email,
-        contact: phone
-      },
-      theme: {
-        color: "#ff7043"
-      }
-    };
-
-    const rzp = new Razorpay(options);
-    rzp.open();
-
-    // Payment failed handler
-    rzp.on("payment.failed", function () {
-      localStorage.setItem("paymentFailure", "true");
-      window.location.href = "index.html#home";
-    });
+  // ✅ Save cart + total before submitting form
+  checkoutForm.addEventListener("submit", function () {
+    localStorage.setItem("orderCart", JSON.stringify(cart));
+    localStorage.setItem("orderTotal", total);
   });
 });
 
-// Back to Cart function
+// ✅ Back to Cart button
 function goBackToCart() {
-  window.location.href = "index.html#menu";
+  window.location.href = "cart.html";
 }
-
