@@ -1,0 +1,2 @@
+-- Millet Bites DB schema (see canvas for full content)
+-- Copy full SQL from canvas doc.
