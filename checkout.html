@@ -14,10 +14,18 @@
     <!-- ✅ Order Summary Section -->
     <div class="order-summary">
       <h3>Your Order</h3>
-      <div id="order-items"></div>
-      <p id="order-total" style="font-weight: bold;"></p>
-     </div>
-
+      <table class="order-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="order-items"></tbody>
+      </table>
+      <p id="order-total" style="font-weight: bold; text-align: right; margin-top: 10px;"></p>
+    </div>
     <!-- ✅ End Order Summary -->
 
     <form id="checkout-form">
@@ -61,7 +69,8 @@
         <label>Pincode</label>
         <input type="text" id="pincode" placeholder="Pincode" pattern="^[0-9]{6}$" maxlength="6" required>
       </div>
-     <!-- 🔙 Back to Cart button -->
+      
+      <!-- 🔙 Back to Cart button -->
       <button type="button" onclick="goBackToCart()" class="back-button">
         ← Back to Cart
       </button>
@@ -69,14 +78,7 @@
     </form>
   </div>
   
-  <!-- ✅ Only checkout logic -->
+  <!-- ✅ Checkout Logic -->
   <script src="checkoutscript.js"></script>
-  <script>
-    function goBackToCart() {
-      window.location.href = "index.html#menu"; // jump back to menu section
-    }
-  </script>
 </body>
 </html>
-
-
