@@ -1,30 +1,42 @@
-// checkoutscript.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let cart = JSON.parse(localStorage.getItem("orderCart")) || {};
+  let total = parseFloat(localStorage.getItem("orderTotal")) || 0;
+
   let orderItemsDiv = document.getElementById("order-items");
   let orderTotalP = document.getElementById("order-total");
   let checkoutForm = document.getElementById("checkout-form");
 
   // ✅ Show cart items in checkout page
-  if (cart.length === 0) {
+  if (Object.keys(cart).length === 0) {
     orderItemsDiv.innerHTML = "<p>Your cart is empty.</p>";
     orderTotalP.textContent = "";
   } else {
-    let total = 0;
     orderItemsDiv.innerHTML = "";
+    for (const productName in cart) {
+      const item = cart[productName];
+      let itemTotal = 0;
 
-    cart.forEach(item => {
-      let div = document.createElement("div");
+      if (item.product.type === "combo") {
+        itemTotal = item.quantity * item.product.price;
+      } else {
+        const unit = item.product.pricePer === 250 ? 250 : 100;
+        itemTotal = (item.quantity / unit) * item.product.price;
+      }
+
+      const div = document.createElement("div");
       div.classList.add("order-item");
       div.innerHTML = `
-        <p><strong>${item.name}</strong> × ${item.quantity}</p>
-        <p>₹${(item.price * item.quantity).toFixed(2)}</p>
+        <p><strong>${productName}</strong> × 
+           ${item.product.type === "combo" 
+              ? `${item.quantity} Pack${item.quantity > 1 ? "s" : ""}` 
+              : item.quantity >= 1000 
+                ? (item.quantity / 1000).toFixed(2) + " kg" 
+                : item.quantity + " g"}
+        </p>
+        <p>₹${itemTotal.toFixed(2)}</p>
       `;
       orderItemsDiv.appendChild(div);
-
-      total += item.price * item.quantity;
-    });
+    }
 
     orderTotalP.textContent = "Total: ₹" + total.toFixed(2);
   }
@@ -33,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   checkoutForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    if (cart.length === 0) {
+    if (Object.keys(cart).length === 0) {
       alert("Your cart is empty. Please add items before checkout.");
       return;
     }
@@ -49,37 +61,33 @@ document.addEventListener("DOMContentLoaded", () => {
     let state = document.getElementById("state").value;
     let pincode = document.getElementById("pincode").value;
 
-    let address = `${door}, ${street}, ${area}, ${nearby}, ${city}, ${state} - ${pincode}`;
-
-    // ✅ Calculate total amount
-    let totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    // ✅ Customer object
+    let customer = { name, phone, email, door, street, area, nearby, city, state, pincode };
 
     // ✅ Razorpay options
     let options = {
       key: "rzp_test_xxxxxxxxx", // replace with your Razorpay key
-      amount: totalAmount * 100, // in paise
+      amount: total * 100, // in paise
       currency: "INR",
       name: "Millet Bites",
       description: "Order Payment",
       handler: function (response) {
-        alert("✅ Payment Successful! Payment ID: " + response.razorpay_payment_id);
-
-        // Save order summary (optional: send to backend instead)
+        // ✅ Save order summary for success modal
         let orderSummary = {
-          name,
-          phone,
-          email,
-          address,
-          items: cart,
-          total: totalAmount,
+          cart,
+          total,
+          customer,
           paymentId: response.razorpay_payment_id
         };
 
-        console.log("Order Placed:", orderSummary);
+        localStorage.setItem("paymentSuccess", JSON.stringify(orderSummary));
 
-        // ✅ Clear cart after success
-        localStorage.removeItem("cart");
-        window.location.href = "index.html#home"; // back to home
+        // Clear cart
+        localStorage.removeItem("orderCart");
+        localStorage.removeItem("orderTotal");
+
+        // Redirect back to home (modal will show)
+        window.location.href = "index.html#home";
       },
       prefill: {
         name: name,
@@ -93,6 +101,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let rzp = new Razorpay(options);
     rzp.open();
+
+    // If user cancels, mark as failure
+    rzp.on("payment.failed", function () {
+      localStorage.setItem("paymentFailure", "true");
+      window.location.href = "index.html#home";
+    });
   });
 });
 
