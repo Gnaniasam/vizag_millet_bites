@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1024, user-scalable=yes">
+  <meta name="description" content="Buy Millet snacks online: Combo packs, weight-based items, and more. Fast delivery.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="bites.png">
+  <title>Millet Bites</title>
+</head>
+<body>
+  <div class="overlay" id="overlay"></div>
+  <div class="cart-panel" id="cartPanel">
+    <div class="cart-panel-header">
+      <h3>Your Cart</h3>
+      <button class="close-cart" id="closeCart">&times;</button>
+    </div>
+    <div class="cart-items" id="panel-cart-items">
+      <div class="empty-cart">Your cart is empty</div>
+    </div>
+    <div class="cart-summary">
+      <p>Total: ₹0.00</p>
+    </div>
+    <div class="cart-buttons">
+      <button onclick="sendOrder()">Pay Now</button>
+      <button class="clear">Clear Cart</button>
+    </div>
+  </div>
+
+  <header>
+    <a href="#home"><h1>Millet Bites</h1></a>
+    <div class="header-right">
+      <nav>
+        <a href="#menu">Menu</a>
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+        <a href="#reviews">Reviews</a>
+      </nav>
+      <div class="cart-icon" id="cartIcon">
+        <img src="cart.png" width="60" height="60" alt="Cart">
+        <span class="cart-count" id="cartCount">0</span>
+      </div>
+    </div>
+  </header>
+  <div class="scroll"><span>🎉Healthy Rakhi, Happy Rakhi – Celebrate with Nutritious Millets!🎉</span></div>
+<section id="home" class="hero">
+  <div class="slideshow-container">
+    <a href="#menu">
+    <img class="slides" src="b1.jpeg" alt="Combo 1" />
+    </a>
+    <a href="#menu">
+    <img class="slides" src="b2.jpeg" alt="Combo 2" />
+    </a>
+    <a href="#menu">
+    <img class="slides" src="b3.jpeg" alt="Combo 3" />
+    </a> 
+    <a href="#menu">
+    <img class="slides" src="b4.jpeg" alt="Combo 4" />
+    </a>
+    <div style="text-align: center; margin-top: 10px;">
+      <span class="dot" data-index="1"></span>
+      <span class="dot" data-index="2"></span>
+      <span class="dot" data-index="3"></span>
+      <span class="dot" data-index="4"></span>
+    </div>
+  </div>
+  <div class="slide-text">
+    <h4>Welcome to Millet Bites – Experience delicious flavour with our healthy, tasty, and affordable millet-based snacks!</h4>
+    <p>Healthy | Tasty | Affordable</p>
+  </div>
+</section>
+
+<section id="menu" class="menu">
+  <div class="menu-header">
+  <h2>Our Menu</h2>
+  <!-- Cart Icon -->
+  <div class="cart-icon" id="cartIcon2" style="text-align: right; font-weight: bold; padding: 5px 5px;">
+      <img src="cart.png" width="60" height="60" alt="Cart">
+      <span class="cart-count" id="cartCount2">0</span>
+  </div>
+  </div>
+  <div class="product-grid" id="category-grid"></div>
+  <div class="product-grid" id="product-grid" style="margin-top: 30px;"></div>
+</section>
+
+  <section id="about" class="about-contact">
+    <h2>About Us</h2>
+    <p>We're a Vizag-based brand bringing healthy snacking to your doorstep.</p>
+  </section>
+
+  <section id="contact" class="about-contact" style="background: #e3f2fd;">
+    <h2>Contact Us</h2>
+    <p>Reach us on:</p>
+    <div class="contact-icons">
+      <div style="display: flex; justify-content: center; gap: 20px;">
+        <a href="https://wa.me/919949840365" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" style="height: 30px; width: 30px;">
+        </a>
+        <a href="https://instagram.com/vizagMilletBites" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" style="height: 30px; width: 30px;">
+        </a>
+        <a href="tel:+919949840365" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png" alt="Phone" style="height: 30px; width: 30px;">
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="reviews" class="about-contact" style="background: #fff8e1;">
+    <h2>Customer Reviews</h2>
+    <p>“Absolutely loved the Ragi Mixture—crunchy and wholesome!”</p>
+    <p>“Fast delivery, fresh taste. Will order again.”</p>
+  </section>
+
+  <footer>
+<div class="footer-container">
+<div class="footer-column">
+<img src="bites.png" alt="Millet Bites Logo" class="footer-logo" />
+<p>Experience delicious flavour with our healthy, tasty, and affordable millet-based snacks</p>
+</div>
+
+  <div class="footer-column">
+    <h2>Quick Links</h2>
+      <a href="#home">Home</a><br>
+      <a href="#about">About Us</a><br>
+      <a href="#menu">Menu</a><br>
+      <a href="#contact">Contact</a><br>
+      <a href="#reviews">Reviews</a><br>
+  </div>
+
+  <div class="footer-column">
+    <h2>Products</h2>
+      <a href="#menu">Combos</a><br>
+      <a href="#menu">Sweets</a><br>
+      <a href="#menu">Hots</a><br>
+      <a href="#menu">Dry Fruits</a><br>
+      <a href="#menu">Laddus</a><br>
+  </div>
+</div>
+
+    &copy; 2025 Millet Bites. All rights reserved.
+  </footer>
+  <a href="https://wa.me/919949840365" class="whatsapp-float" target="_blank">💬</a>
+  
+<!-- Success Modal -->
+<div id="successModal" class="modal">
+  <div class="modal-content">
+    <span id="closeSuccessModal" class="close">&times;</span>
+    <h2>✅ Payment Successful!</h2>
+    <p style="color:red; font-weight:bold;">📸 Please take a screenshot of this page for your reference.</p>
+    <div id="orderSummary"></div>
+    <button id="okBtn">OK</button>
+  </div>
+</div>
+
+<!-- Failure Modal -->
+<div id="failureModal" class="modal">
+  <div class="modal-content">
+    <span id="closeFailureModal" class="close">&times;</span>
+    <h2 style="color:red;">❌ Payment Failed or Canceled</h2>
+    <p>Please try again. Your cart is still saved.</p>
+    <button id="retryBtn">Order Again</button>
+  </div>
+</div>
+
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+<!-- Your external JavaScript -->
+<script src="script.js"></script>
+</body>
+</html>
