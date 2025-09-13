@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Razorpay options - replace key with your actual key
     const options = {
-      key: "rzp_test_xxxxxxxxx", // TODO: replace with your Razorpay key
+      key: "rzp_test_RGFvmNP1FiIT6V", // TODO: replace with your Razorpay key
       amount: Math.round(total * 100), // amount in paise (integer)
       currency: "INR",
       name: "Millet Bites",
@@ -135,3 +135,4 @@ document.addEventListener("DOMContentLoaded", () => {
 function goBackToCart() {
   window.location.href = "index.html#menu";
 }
+
