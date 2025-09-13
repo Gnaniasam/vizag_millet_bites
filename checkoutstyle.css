@@ -67,3 +67,18 @@ body {
   background: #e64a19; /* darker shade */
   transform: scale(1.05);
 }
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.order-table th, .order-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.order-table th {
+  background: #f5f5f5;
+}
