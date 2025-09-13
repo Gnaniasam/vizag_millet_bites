@@ -1,131 +1,102 @@
-// ✅ Get order details from localStorage
-var total = parseFloat(localStorage.getItem("orderTotal")) || 0;
-var orderCart = JSON.parse(localStorage.getItem("orderCart")) || {};
+// checkoutscript.js
 
-// ✅ Render order summary
-function renderOrderSummary() {
-  const orderItemsDiv = document.getElementById("order-items");
-  const orderTotalP = document.getElementById("order-total");
+document.addEventListener("DOMContentLoaded", () => {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let orderItemsDiv = document.getElementById("order-items");
+  let orderTotalP = document.getElementById("order-total");
+  let checkoutForm = document.getElementById("checkout-form");
 
-  if (Object.keys(orderCart).length === 0) {
+  // ✅ Show cart items in checkout page
+  if (cart.length === 0) {
     orderItemsDiv.innerHTML = "<p>Your cart is empty.</p>";
-    orderTotalP.textContent = "Total: ₹0.00";
-    return;
+    orderTotalP.textContent = "";
+  } else {
+    let total = 0;
+    orderItemsDiv.innerHTML = "";
+
+    cart.forEach(item => {
+      let div = document.createElement("div");
+      div.classList.add("order-item");
+      div.innerHTML = `
+        <p><strong>${item.name}</strong> × ${item.quantity}</p>
+        <p>₹${(item.price * item.quantity).toFixed(2)}</p>
+      `;
+      orderItemsDiv.appendChild(div);
+
+      total += item.price * item.quantity;
+    });
+
+    orderTotalP.textContent = "Total: ₹" + total.toFixed(2);
   }
 
-  let html = "<ul>";
-  for (const productName in orderCart) {
-    const item = orderCart[productName];
+  // ✅ Handle checkout form submission
+  checkoutForm.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-    // Quantity text
-    let qtyText = item.product.type === "combo"
-      ? `${item.quantity} Pack${item.quantity > 1 ? "s" : ""}`
-      : item.quantity >= 1000
-        ? (item.quantity / 1000).toFixed(2) + " kg"
-        : item.quantity + " g";
-
-    // Item price
-    let itemPrice = 0;
-    if (item.product.type === "combo") {
-      itemPrice = item.quantity * item.product.price;
-    } else {
-      const unit = item.product.pricePer === 250 ? 250 : 100;
-      itemPrice = (item.quantity / unit) * item.product.price;
+    if (cart.length === 0) {
+      alert("Your cart is empty. Please add items before checkout.");
+      return;
     }
 
-    html += `<li>${productName} - ${qtyText} - ₹${itemPrice.toFixed(2)}</li>`;
-  }
-  html += "</ul>";
+    let name = document.getElementById("name").value;
+    let phone = document.getElementById("phone").value;
+    let email = document.getElementById("email").value;
+    let door = document.getElementById("door").value;
+    let street = document.getElementById("street").value;
+    let area = document.getElementById("area").value;
+    let nearby = document.getElementById("nearby").value || "";
+    let city = document.getElementById("city").value;
+    let state = document.getElementById("state").value;
+    let pincode = document.getElementById("pincode").value;
 
-  orderItemsDiv.innerHTML = html;
-  orderTotalP.textContent = `Total: ₹${total.toFixed(2)}`;
-}
+    let address = `${door}, ${street}, ${area}, ${nearby}, ${city}, ${state} - ${pincode}`;
 
-document.addEventListener("DOMContentLoaded", renderOrderSummary);
+    // ✅ Calculate total amount
+    let totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-// ✅ Handle payment
-document.getElementById("checkout-form").addEventListener("submit", function (e) {
-  e.preventDefault();
+    // ✅ Razorpay options
+    let options = {
+      key: "rzp_test_xxxxxxxxx", // replace with your Razorpay key
+      amount: totalAmount * 100, // in paise
+      currency: "INR",
+      name: "Millet Bites",
+      description: "Order Payment",
+      handler: function (response) {
+        alert("✅ Payment Successful! Payment ID: " + response.razorpay_payment_id);
 
-  var customer = {
-    name: document.getElementById("name").value,
-    phone: document.getElementById("phone").value,
-    email: document.getElementById("email").value,
-    door: document.getElementById("door").value,
-    street: document.getElementById("street").value,
-    area: document.getElementById("area").value,
-    nearby: document.getElementById("nearby").value,
-    city: document.getElementById("city").value,
-    state: document.getElementById("state").value,
-    pincode: document.getElementById("pincode").value,
-  };
+        // Save order summary (optional: send to backend instead)
+        let orderSummary = {
+          name,
+          phone,
+          email,
+          address,
+          items: cart,
+          total: totalAmount,
+          paymentId: response.razorpay_payment_id
+        };
 
-  if (total <= 0) {
-    alert("Invalid total amount!");
-    return;
-  }
+        console.log("Order Placed:", orderSummary);
 
-  var options = {
-    key: "rzp_test_RGFvmNP1FiIT6V", // Replace with your Razorpay Key
-    amount: parseInt(total) * 100, // in paise
-    currency: "INR",
-    name: "Millet Bites",
-    description: "Product Purchase",
-    handler: function (response) {
-      // ✅ Prepare order data for Google Sheets
-      const orderData = {
-        customer: customer,
-        paymentId: response.razorpay_payment_id,
-        total: total,
-        items: Object.keys(orderCart).map(name => {
-          const item = orderCart[name];
-          let itemPrice = item.product.type === "combo"
-            ? item.quantity * item.product.price
-            : (item.quantity / (item.product.pricePer === 250 ? 250 : 100)) * item.product.price;
-
-          return {
-            name: name,
-            quantity: item.product.type === "combo"
-              ? `${item.quantity} Pack${item.quantity > 1 ? "s" : ""}`
-              : item.quantity >= 1000
-                ? (item.quantity / 1000).toFixed(2) + " kg"
-                : item.quantity + " g",
-            price: itemPrice
-          };
-        })
-      };
-
-      // ✅ Save success details in localStorage
-      localStorage.setItem("paymentSuccess", JSON.stringify({
-        customer: customer,
-        cart: orderCart,
-        total: total,
-        paymentId: response.razorpay_payment_id
-      }));
-
-      // ✅ Clear local cart storage
-      localStorage.removeItem("orderTotal");
-      localStorage.removeItem("orderCart");
-
-      // Redirect to home page
-      window.location.href = "index.html";
-    },
-    prefill: {
-      name: customer.name,
-      email: customer.email,
-      contact: customer.phone,
-    },
-    theme: {
-      color: "#3399cc",
-    },
-    modal: {
-      ondismiss: function () {
-        localStorage.setItem("paymentFailure", "true");
-        window.location.href = "index.html";
+        // ✅ Clear cart after success
+        localStorage.removeItem("cart");
+        window.location.href = "index.html#home"; // back to home
+      },
+      prefill: {
+        name: name,
+        email: email,
+        contact: phone
+      },
+      theme: {
+        color: "#ff7043"
       }
-    }
-  };
+    };
 
-  var rzp1 = new Razorpay(options);
-  rzp1.open();
-});"
+    let rzp = new Razorpay(options);
+    rzp.open();
+  });
+});
+
+// ✅ Back to Cart function
+function goBackToCart() {
+  window.location.href = "index.html#menu";
+}
