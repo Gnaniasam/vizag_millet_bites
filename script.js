@@ -1,4 +1,4 @@
-
+// script.js - Adding search, filtering, wishlist, and other features
 /* ---------- Slideshow (unchanged behavior) ---------- */
 let slideIndex = 1;
 let slideTimer;
@@ -38,25 +38,12 @@ function autoSlides() {
   }, 5000);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  showSlides(slideIndex);
-  autoSlides();
-
-  const dots = document.querySelectorAll(".dot");
-  dots.forEach(dot => {
-    dot.addEventListener("click", () => {
-      const index = parseInt(dot.getAttribute("data-index"));
-      currentSlide(index);
-    });
-  });
-});
-
 /* ---------- Products (with descriptions) ---------- */
 const products = [
   { name: "Combo Pack 1", image: "b1.jpeg", price: 999, type: "combo", category: "combo", minQty: null, description: "Premium combo - assorted millet snacks, great for gifting." },
-  { name: "Combo Pack 2", image: "b2.jpeg", price: 299, type: "combo", category: "combo", description: "Tasty combo with a mix of crunchy favourites." },
-  { name: "Combo Pack 3", image: "b3.jpeg", price: 399, type: "combo", category: "combo", description: "Value combo for daily snacking." },
-  { name: "Combo Pack 4", image: "b4.jpeg", price: 599, type: "combo", category: "combo", description: "Assorted premium millet selections." },
+  { name: "Combo Pack 2", image: "b2.jpeg", price: 299, type: "combo", category: "combo", description: "Pack of 9 items Each 50 Grams Total 450 Grams Price - 299 Free shipping." },
+  { name: "Combo Pack 3", image: "b3.jpeg", price: 399, type: "combo", category: "combo", description: "Pack of 7 items Each 100 Grams Total 700 Grams Free shipping ." },
+  { name: "Combo Pack 4", image: "b4.jpeg", price: 599, type: "combo", category: "combo", description: "Pack of 9 items Any 7 items each 100 grams Any 2 items Each 150 Grams Total 1 Kg Free shipping anywhere in India Special offer - 100 Grams Dry Fruit Laddu Free." },
 
   { name: "Ragi Mixture", image: "Ragi Mixture.jpeg", price: 60, type: "weight", category: "hots", description: "Crunchy and wholesome Ragi mixture — evening snack." },
   { name: "Ragi Chegodilu", image: "Ragi Chegodilu.jpeg", price: 60, type: "weight", category: "hots", description: "Traditional chegodilu made from ragi." },
@@ -78,9 +65,47 @@ const products = [
 
 /* ---------- Helpers & cart state ---------- */
 const cart = {}; // key: productName => { product, quantity }
+const wishlist = {}; // key: productName => product
 const safeId = (name) => name.replace(/\s+/g, '_').replace(/[^\w-]/g, '');
 
-/* ---------- Render categories & products ---------- */
+/* ---------- Search and Filter Functions ---------- */
+function filterProducts() {
+  const searchText = document.getElementById('productSearch').value.toLowerCase();
+  const priceFilter = document.getElementById('priceFilter').value;
+  const categoryFilter = document.getElementById('categoryFilter').value;
+  
+  return products.filter(product => {
+    // Search text filter
+    if (searchText && !product.name.toLowerCase().includes(searchText) && 
+        !product.description.toLowerCase().includes(searchText)) {
+      return false;
+    }
+    
+    // Price filter
+    if (priceFilter !== 'all') {
+      if (priceFilter === '0-100' && product.price > 100) return false;
+      if (priceFilter === '100-300' && (product.price <= 100 || product.price > 300)) return false;
+      if (priceFilter === '300-500' && (product.price <= 300 || product.price > 500)) return false;
+      if (priceFilter === '500+' && product.price <= 500) return false;
+    }
+    
+    // Category filter
+    if (categoryFilter !== 'all' && product.category !== categoryFilter) {
+      return false;
+    }
+    
+    return true;
+  });
+}
+
+function highlightSearchText(text, searchTerm) {
+  if (!searchTerm) return text;
+  
+  const regex = new RegExp(`(${searchTerm})`, 'gi');
+  return text.replace(regex, '<span class="highlight">$1</span>');
+}
+
+/* ---------- Render categories & products with filtering ---------- */
 function renderCategories() {
   const categoryGrid = document.getElementById("category-grid");
   categoryGrid.innerHTML = "";
@@ -89,7 +114,12 @@ function renderCategories() {
   allCard.className = "product-card";
   allCard.style.cursor = "pointer";
   allCard.innerHTML = `<h4>All Products</h4>`;
-  allCard.addEventListener("click", () => renderProductsByCategory("all"));
+  allCard.addEventListener("click", () => {
+    document.getElementById('productSearch').value = '';
+    document.getElementById('priceFilter').value = 'all';
+    document.getElementById('categoryFilter').value = 'all';
+    renderProductsByCategory("all");
+  });
   categoryGrid.appendChild(allCard);
 
   const categories = [...new Set(products.map(p => p.category))];
@@ -98,7 +128,12 @@ function renderCategories() {
     div.className = "product-card";
     div.style.cursor = "pointer";
     div.innerHTML = `<h4>${cat.toUpperCase()}</h4>`;
-    div.addEventListener("click", () => renderProductsByCategory(cat));
+    div.addEventListener("click", () => {
+      document.getElementById('productSearch').value = '';
+      document.getElementById('priceFilter').value = 'all';
+      document.getElementById('categoryFilter').value = cat;
+      renderProductsByCategory(cat);
+    });
     categoryGrid.appendChild(div);
   });
 }
@@ -107,7 +142,13 @@ function renderProductsByCategory(category) {
   const grid = document.getElementById("product-grid");
   grid.innerHTML = "";
 
-  const filtered = category === "all" ? products : products.filter(p => p.category === category);
+  const searchText = document.getElementById('productSearch').value.toLowerCase();
+  const filtered = category === "all" ? filterProducts() : filterProducts().filter(p => p.category === category);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="no-products">No products found matching your criteria.</div>';
+    return;
+  }
 
   filtered.forEach(product => {
     const id = safeId(product.name);
@@ -124,11 +165,16 @@ function renderProductsByCategory(category) {
     }
 
     const weightLabel = (product.type === "combo") ? (product.minQty === 170 ? '170g' : 'Pack') : (product.minQty === 250 ? '250g' : '100g');
+    
+    // Highlight search text in product name and description
+    const highlightedName = highlightSearchText(product.name, searchText);
+    const highlightedDesc = highlightSearchText(product.description, searchText);
 
     div.innerHTML = `
       <div class="discount-badge">${product.type === 'combo' ? 'Best Offer' : '20% OFF'}</div>
       <img src="${product.image}" alt="${product.name}" />
-      <h4>${product.name}</h4>
+      <h4>${highlightedName}</h4>
+      <p class="product-description">${highlightedDesc}</p>
       <p>₹${product.price} - ${weightLabel}</p>
       <div class="quantity-controls">
         <button class="card-remove">-</button>
@@ -136,6 +182,9 @@ function renderProductsByCategory(category) {
         <button class="card-add">+</button>
       </div>
       <div class="cart-status" id="status-${id}"></div>
+      <button class="wishlist-toggle" data-product="${product.name}">
+        ${wishlist[product.name] ? '❤️ Remove from Wishlist' : '🤍 Add to Wishlist'}
+      </button>
     `;
 
     grid.appendChild(div);
@@ -146,301 +195,168 @@ function renderProductsByCategory(category) {
       const qty = parseInt(selectEl.value, 10);
       addToCartWithQty(product.name, qty);
       updateStatus(product.name);
+      showToast(`Added ${qty} ${product.type === 'combo' ? 'pack(s)' : 'g'} of ${product.name} to cart`);
     });
+    
     div.querySelector('.card-remove').addEventListener('click', () => {
       const qty = parseInt(selectEl.value, 10);
       removeFromCartWithQty(product.name, qty);
       updateStatus(product.name);
+      showToast(`Removed ${qty} ${product.type === 'combo' ? 'pack(s)' : 'g'} of ${product.name} from cart`);
+    });
+    
+    // wishlist toggle
+    div.querySelector('.wishlist-toggle').addEventListener('click', (e) => {
+      toggleWishlist(product);
+      e.target.textContent = wishlist[product.name] ? '❤️ Remove from Wishlist' : '🤍 Add to Wishlist';
+      showToast(wishlist[product.name] ? `Added ${product.name} to wishlist` : `Removed ${product.name} from wishlist`);
     });
 
     // open modal on image or title click
     div.querySelector('img').addEventListener('click', () => openProductModal(product));
     div.querySelector('h4').addEventListener('click', () => openProductModal(product));
   });
+  
+  // Lazy load images
+  lazyLoadImages();
 }
 
-/* ---------- Cart functions (robust, used by both cards and modal) ---------- */
-function addToCartWithQty(productName, qty) {
-  const product = products.find(p => p.name === productName);
-  if (!product) return;
+/* ---------- Lazy Load Images ---------- */
+function lazyLoadImages() {
+  const images = document.querySelectorAll('.product-card img');
+  
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.src = img.getAttribute('src');
+        img.classList.remove('loading');
+        imageObserver.unobserve(img);
+      }
+    });
+  });
+  
+  images.forEach(img => {
+    img.classList.add('loading');
+    imageObserver.observe(img);
+  });
+}
 
-  if (!cart[productName]) {
-    cart[productName] = { product, quantity: 0 };
+/* ---------- Toast Notifications ---------- */
+function showToast(message, duration = 3000) {
+  // Remove existing toast if any
+  const existingToast = document.querySelector('.toast');
+  if (existingToast) {
+    document.body.removeChild(existingToast);
   }
-  cart[productName].quantity += qty;
-  updateCartDisplay();
-  updateCartCount();
-  // keep statuses in sync
-  updateStatus(productName);
+  
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  // Show toast
+  setTimeout(() => {
+    toast.classList.add('show');
+  }, 10);
+  
+  // Hide toast after duration
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      if (toast.parentNode) {
+        document.body.removeChild(toast);
+      }
+    }, 300);
+  }, duration);
 }
 
-function removeFromCartWithQty(productName, qty) {
-  if (!cart[productName]) return;
-  cart[productName].quantity -= qty;
-  if (cart[productName].quantity <= 0) delete cart[productName];
-  updateCartDisplay();
-  updateCartCount();
-  updateStatus(productName);
-}
-
-function updateStatus(productName) {
-  const s = document.getElementById(`status-${safeId(productName)}`);
-  if (!s) return;
-  if (cart[productName]) {
-    const item = cart[productName];
-    if (item.product.type === "combo") {
-      s.textContent = `In cart: ${item.quantity} Pack${item.quantity > 1 ? 's' : ''}`;
-    } else {
-      s.textContent = `In cart: ${item.quantity >= 1000 ? (item.quantity/1000).toFixed(2) + ' kg' : item.quantity + ' g'}`;
-    }
+/* ---------- Wishlist Functions ---------- */
+function toggleWishlist(product) {
+  if (wishlist[product.name]) {
+    delete wishlist[product.name];
   } else {
-    s.textContent = "";
+    wishlist[product.name] = product;
   }
+  updateWishlistDisplay();
+  updateWishlistCount();
+  saveWishlistToStorage();
 }
 
-function updateCartCount() {
-  const count = Object.keys(cart).length;
-  const el1 = document.getElementById("cartCount");
-  const el2 = document.getElementById("cartCount2");
-  if (el1) el1.textContent = count;
-  if (el2) el2.textContent = count;
-}
-
-function updateCartDisplay() {
-  const container = document.getElementById("panel-cart-items");
-  let total = 0;
-
-  if (Object.keys(cart).length === 0) {
-    container.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
-    document.querySelector(".cart-summary p").textContent = `Total: ₹0.00`;
+function updateWishlistDisplay() {
+  const container = document.getElementById("wishlistItems");
+  
+  if (Object.keys(wishlist).length === 0) {
+    container.innerHTML = '<div class="empty-wishlist">Your wishlist is empty</div>';
     return;
   }
 
   let html = '';
-  for (const name in cart) {
-    const item = cart[name];
-    let itemTotal = 0;
-    let qtyControls = '';
-
-    if (item.product.type === "combo") {
-      itemTotal = item.quantity * item.product.price;
-      qtyControls = `
-        <button onclick="adjustCartItem('${name}', -1)">-</button>
-        ${item.quantity} Pack${item.quantity > 1 ? 's' : ''}
-        <button onclick="adjustCartItem('${name}', 1)">+</button>
-      `;
-    } else {
-      const unit = item.product.pricePer === 250 ? 250 : 100;
-      itemTotal = (item.quantity / unit) * item.product.price;
-      qtyControls = `
-        <button onclick="adjustCartItem('${name}', -${item.product.minQty === 250 ? 250 : 100})">-</button>
-        ${item.quantity >= 1000 ? (item.quantity/1000).toFixed(2) + ' kg' : item.quantity + ' g'}
-        <button onclick="adjustCartItem('${name}', ${item.product.minQty === 250 ? 250 : 100})">+</button>
-      `;
-    }
-
-    total += itemTotal;
+  for (const name in wishlist) {
+    const product = wishlist[name];
     html += `
-      <div class="cart-item">
-        <div class="cart-item-name">${name}</div>
-        <div class="cart-item-qty">${qtyControls}</div>
-        <div class="cart-item-price">₹${itemTotal.toFixed(2)}</div>
+      <div class="wishlist-item">
+        <img src="${product.image}" alt="${product.name}" />
+        <div class="wishlist-item-details">
+          <div class="wishlist-item-name">${product.name}</div>
+          <div class="wishlist-item-price">₹${product.price}</div>
+        </div>
+        <div class="wishlist-item-actions">
+          <button class="add-to-cart-btn" data-product="${product.name}">Add to Cart</button>
+          <button class="remove-from-wishlist" data-product="${product.name}">Remove</button>
+        </div>
       </div>
     `;
   }
 
   container.innerHTML = html;
-  document.querySelector(".cart-summary p").textContent = `Total: ₹${total.toFixed(2)}`;
-  document.dispatchEvent(new Event("cartUpdated"));
-}
-
-function adjustCartItem(productName, adjustment) {
-  if (!cart[productName]) return;
-  cart[productName].quantity += adjustment;
-  if (cart[productName].quantity <= 0) delete cart[productName];
-  updateCartDisplay();
-  updateCartCount();
-  updateStatus(productName);
-}
-
-/* ---------- Cart panel toggles & initial DOM wiring ---------- */
-function toggleCartPanel() {
-  document.getElementById("cartPanel").classList.toggle("active");
-  document.getElementById("overlay").classList.toggle("active");
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderCategories();
-  renderProductsByCategory("all");
-
-  // cart panel toggle wiring
-  const ic1 = document.getElementById("cartIcon");
-  const ic2 = document.getElementById("cartIcon2");
-  if (ic1) ic1.addEventListener("click", toggleCartPanel);
-  if (ic2) ic2.addEventListener("click", toggleCartPanel);
-  document.getElementById("closeCart").addEventListener("click", toggleCartPanel);
-  document.getElementById("overlay").addEventListener("click", toggleCartPanel);
-
-  // clear cart
-  const clearBtn = document.querySelector(".clear");
-  if (clearBtn) clearBtn.addEventListener("click", () => {
-    for (const name in cart) delete cart[name];
-    updateCartDisplay();
-    updateCartCount();
-    // clear statuses
-    products.forEach(p => updateStatus(p.name));
+  
+  // Add event listeners to wishlist items
+  container.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const productName = e.target.getAttribute('data-product');
+      const product = wishlist[productName];
+      const defaultQty = product.type === 'combo' ? 1 : (product.minQty === 250 ? 250 : 100);
+      addToCartWithQty(productName, defaultQty);
+      showToast(`Added ${productName} to cart`);
+      updateStatus(productName);
+    });
   });
-});
-
-/* ---------- Checkout / sendOrder logic (unchanged behavior) ---------- */
-function sendOrder() {
-  if (Object.keys(cart).length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
-
-  let totalWeight = 0;
-  let hasWeight = false;
-  let hasCombo = false;
-  let total = 0;
-
-  for (const productName in cart) {
-    const item = cart[productName];
-    if (item.product.type === "combo") {
-      hasCombo = true;
-      total += item.quantity * item.product.price;
-    } else {
-      hasWeight = true;
-      const unit = item.product.pricePer === 250 ? 250 : 100;
-      totalWeight += item.quantity;
-      total += (item.quantity / unit) * item.product.price;
-    }
-  }
-
-  if (hasWeight && !hasCombo && totalWeight < 500) {
-    alert("Minimum order for weight-based products is 500g!");
-    return;
-  }
-
-  localStorage.setItem("orderTotal", total);
-  localStorage.setItem("orderCart", JSON.stringify(cart));
-  window.location.href = "checkout.html";
-}
-
-/* ---------- Payment success/failure modals (loads from localStorage on page load) ---------- */
-window.addEventListener("load", function () {
-  const successData = JSON.parse(localStorage.getItem("paymentSuccess") || "null");
-  if (successData) {
-    let summary = "<h3>🧾 Order Summary:</h3><ul>";
-    for (const productName in successData.cart) {
-      const item = successData.cart[productName];
-      let qtyText = item.product.type === "combo"
-        ? `${item.quantity} Pack${item.quantity > 1 ? "s" : ""}`
-        : item.quantity >= 1000
-          ? (item.quantity / 1000).toFixed(2) + " kg"
-          : item.quantity + " g";
-      summary += `<li>${productName}: ${qtyText}</li>`;
-    }
-    summary += "</ul>";
-    summary += `<p><strong>💰 Total Paid:</strong> ₹${successData.total.toFixed(2)}</p>`;
-    summary += `<p><strong>🆔 Payment ID:</strong> ${successData.paymentId}</p>`;
-    summary += `<h3>📍 Delivery Details:</h3>`;
-    summary += `<p>${successData.customer.name}, ${successData.customer.phone}</p>`;
-    summary += `<p>${successData.customer.door}, ${successData.customer.street}, ${successData.customer.area}</p>`;
-    summary += `<p>${successData.customer.city}, ${successData.customer.state} - ${successData.customer.pincode}</p>`;
-
-    document.getElementById("orderSummary").innerHTML = summary;
-    document.getElementById("successModal").style.display = "flex";
-
-    document.getElementById("closeSuccessModal").onclick = () => document.getElementById("successModal").style.display = "none";
-    document.getElementById("okBtn").onclick = () => document.getElementById("successModal").style.display = "none";
-
-    localStorage.removeItem("paymentSuccess");
-  }
-
-  if (localStorage.getItem("paymentFailure")) {
-    document.getElementById("failureModal").style.display = "flex";
-    document.getElementById("closeFailureModal").onclick = () => document.getElementById("failureModal").style.display = "none";
-    document.getElementById("retryBtn").onclick = function () { window.location.href = "checkout.html"; };
-    localStorage.removeItem("paymentFailure");
-  }
-});
-
-/* ---------- Product Modal: open, add/remove, close ---------- */
-function openProductModal(product) {
-  const modal = document.getElementById("productModal");
-  if (!product) return;
-
-  document.getElementById("modalProductImage").src = product.image;
-  document.getElementById("modalProductName").textContent = product.name;
-  document.getElementById("modalProductDescription").textContent = product.description || "";
-  document.getElementById("modalProductPrice").textContent = `₹${product.price}`;
-
-  const select = document.getElementById("modalQuantity");
-  select.innerHTML = "";
-
-  if (product.type === "combo") {
-    [1,2,3,5].forEach(q => {
-      const opt = document.createElement("option");
-      opt.value = q;
-      opt.textContent = `${q} Pack${q>1?'s':''}`;
-      select.appendChild(opt);
+  
+  container.querySelectorAll('.remove-from-wishlist').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const productName = e.target.getAttribute('data-product');
+      toggleWishlist(wishlist[productName]);
+      showToast(`Removed ${productName} from wishlist`);
     });
-  } else {
-    const opts = product.minQty === 250 ? [250,500,1000] : [100,250,500,1000];
-    opts.forEach(o => {
-      const opt = document.createElement("option");
-      opt.value = o;
-      opt.textContent = o === 1000 ? '1KG' : `${o}g`;
-      select.appendChild(opt);
-    });
-  }
-
-  // add / remove handlers (use qty from modal)
-  const addBtn = document.getElementById("modalAddBtn");
-  const removeBtn = document.getElementById("modalRemoveBtn");
-
-  addBtn.onclick = function() {
-    const qty = parseInt(select.value, 10);
-    addToCartWithQty(product.name, qty);
-    updateStatus(product.name);
-    updateModalStatus(product.name);
-  };
-  removeBtn.onclick = function() {
-    const qty = parseInt(select.value, 10);
-    removeFromCartWithQty(product.name, qty);
-    updateStatus(product.name);
-    updateModalStatus(product.name);
-  };
-
-  updateModalStatus(product.name);
-  modal.style.display = "flex";
-  // focus for accessibility
-  select.focus();
+  });
 }
 
-function updateModalStatus(productName) {
-  const statusEl = document.getElementById("modalStatus");
-  if (!statusEl) return;
-  if (cart[productName]) {
-    const item = cart[productName];
-    if (item.product.type === "combo") {
-      statusEl.textContent = `In cart: ${item.quantity} Pack${item.quantity > 1 ? 's' : ''}`;
-    } else {
-      statusEl.textContent = `In cart: ${item.quantity >= 1000 ? (item.quantity/1000).toFixed(2) + ' kg' : item.quantity + ' g'}`;
+function updateWishlistCount() {
+  const count = Object.keys(wishlist).length;
+  const els = document.querySelectorAll(".wishlist-count");
+  els.forEach(el => {
+    if (el) el.textContent = count;
+  });
+}
+
+function saveWishlistToStorage() {
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+}
+
+function loadWishlistFromStorage() {
+  const savedWishlist = JSON.parse(localStorage.getItem("wishlist") || "{}");
+  // Merge with current products
+  for (const name in savedWishlist) {
+    const product = products.find(p => p.name === name);
+    if (product) {
+      wishlist[name] = product;
     }
-  } else {
-    statusEl.textContent = "Not in cart";
   }
+  updateWishlistDisplay();
+  updateWishlistCount();
 }
 
-document.getElementById("closeProductModal").addEventListener("click", () => {
-  document.getElementById("productModal").style.display = "none";
-});
-
-// close modal by clicking outside content
-document.getElementById("productModal").addEventListener("click", function(e) {
-  if (e.target && e.target.id === 'productModal') {
-    document.getElementById("productModal").style.display = "none";
-  }
-});
+function toggleWishlistPanel() {
+  document.getElementById("wishlistPanel").classList.toggle("active");
+  document.getElementById("overlay").
