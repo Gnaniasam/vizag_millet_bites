@@ -685,3 +685,59 @@ html {
   align-items: center;
   gap: 0px; /* space between image and count */
 }
+
+/* Extra styles for Product Popup */
+.product-popup {
+  text-align: center;
+}
+
+.product-popup img {
+  max-width: 250px;
+  border-radius: 12px;
+  margin: 15px auto;
+  display: block;
+}
+
+.product-popup h2 {
+  margin: 10px 0;
+  color: #2e7d32;
+}
+
+.product-popup p {
+  margin: 6px 0;
+}
+
+.product-popup .quantity-controls {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-popup .quantity-controls button {
+  background: #ff7043;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.product-popup .quantity-controls button:hover {
+  background: #e64a19;
+}
+
+.product-popup .quantity-controls select {
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+#modalStatus {
+  font-weight: bold;
+  margin-top: 10px;
+  color: #2e7d32;
+}
