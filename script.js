@@ -360,3 +360,164 @@ function loadWishlistFromStorage() {
 function toggleWishlistPanel() {
   document.getElementById("wishlistPanel").classList.toggle("active");
   document.getElementById("overlay").
+}
+// Add these variables at the top with other variables
+let currentCategory = "all";
+let searchTerm = "";
+
+// Add these functions for search functionality
+function filterProducts() {
+  searchTerm = document.getElementById("searchInput").value.toLowerCase();
+  renderProductsByCategory(currentCategory);
+}
+
+function clearSearch() {
+  document.getElementById("searchInput").value = "";
+  searchTerm = "";
+  renderProductsByCategory(currentCategory);
+}
+
+// Update the renderProductsByCategory function to include search filtering
+function renderProductsByCategory(category) {
+  currentCategory = category;
+  const grid = document.getElementById("product-grid");
+  grid.innerHTML = "";
+
+  let filtered = category === "all" ? products : products.filter(p => p.category === category);
+  
+  // Apply search filter if there's a search term
+  if (searchTerm) {
+    filtered = filtered.filter(product => 
+      product.name.toLowerCase().includes(searchTerm) || 
+      (product.description && product.description.toLowerCase().includes(searchTerm))
+    );
+  }
+
+  filtered.forEach(product => {
+    const id = safeId(product.name);
+    const div = document.createElement("div");
+    div.className = "product-card";
+
+    // build qty options - set first option as default
+    let optionsHtml = "";
+    let defaultQty;
+    
+    if (product.type === "combo") {
+      const quantities = [1, 2, 3, 5];
+      defaultQty = quantities[0];
+      quantities.forEach(q => {
+        optionsHtml += `<option value="${q}" ${q === defaultQty ? 'selected' : ''}>${q} Pack${q>1?'s':''}</option>`;
+      });
+    } else {
+      const opts = product.minQty === 250 ? [250, 500, 1000] : [100, 250, 500, 1000];
+      defaultQty = opts[0];
+      opts.forEach(o => {
+        optionsHtml += `<option value="${o}" ${o === defaultQty ? 'selected' : ''}>${o === 1000 ? '1KG' : o + 'g'}</option>`;
+      });
+    }
+
+    const weightLabel = (product.type === "combo") ? (product.minQty === 170 ? '170g' : 'Pack') : (product.minQty === 250 ? '250g' : '100g');
+
+    div.innerHTML = `
+      <div class="discount-badge">${product.type === 'combo' ? 'Best Offer' : '20% OFF'}</div>
+      <img src="${product.image}" alt="${product.name}" />
+      <h4>${product.name}</h4>
+      <p>₹${product.price} - ${weightLabel}</p>
+      <div class="quantity-controls">
+        <button class="card-remove">-</button>
+        <select id="select-${id}">${optionsHtml}</select>
+        <button class="card-add">+</button>
+      </div>
+      <div class="cart-status" id="status-${id}"></div>
+    `;
+
+    grid.appendChild(div);
+
+    // attach listeners (safe, no inline handlers)
+    const selectEl = div.querySelector(`#select-${id}`);
+    div.querySelector('.card-add').addEventListener('click', () => {
+      const qty = parseInt(selectEl.value, 10);
+      addToCartWithQty(product.name, qty);
+      updateStatus(product.name);
+    });
+    div.querySelector('.card-remove').addEventListener('click', () => {
+      const qty = parseInt(selectEl.value, 10);
+      removeFromCartWithQty(product.name, qty);
+      updateStatus(product.name);
+    });
+
+    // open modal on image or title click
+    div.querySelector('img').addEventListener('click', () => openProductModal(product));
+    div.querySelector('h4').addEventListener('click', () => openProductModal(product));
+    
+    // Update status for this product
+    updateStatus(product.name);
+  });
+  
+  // Show message if no products found
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-cart" style="grid-column: 1 / -1; text-align: center; padding: 40px;">No products found matching your search.</div>';
+  }
+}
+
+// Update the openProductModal function to set default quantity
+function openProductModal(product) {
+  const modal = document.getElementById("productModal");
+  if (!product) return;
+
+  document.getElementById("modalProductImage").src = product.image;
+  document.getElementById("modalProductName").textContent = product.name;
+  document.getElementById("modalProductDescription").textContent = product.description || "";
+  document.getElementById("modalProductPrice").textContent = `₹${product.price}`;
+
+  const select = document.getElementById("modalQuantity");
+  select.innerHTML = "";
+
+  // Set default quantity (first option)
+  let defaultQty;
+  
+  if (product.type === "combo") {
+    const quantities = [1, 2, 3, 5];
+    defaultQty = quantities[0];
+    quantities.forEach(q => {
+      const opt = document.createElement("option");
+      opt.value = q;
+      opt.textContent = `${q} Pack${q>1?'s':''}`;
+      if (q === defaultQty) opt.selected = true;
+      select.appendChild(opt);
+    });
+  } else {
+    const opts = product.minQty === 250 ? [250, 500, 1000] : [100, 250, 500, 1000];
+    defaultQty = opts[0];
+    opts.forEach(o => {
+      const opt = document.createElement("option");
+      opt.value = o;
+      opt.textContent = o === 1000 ? '1KG' : `${o}g`;
+      if (o === defaultQty) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  // Rest of the function remains the same...
+  // add / remove handlers (use qty from modal)
+  const addBtn = document.getElementById("modalAddBtn");
+  const removeBtn = document.getElementById("modalRemoveBtn");
+
+  addBtn.onclick = function() {
+    const qty = parseInt(select.value, 10);
+    addToCartWithQty(product.name, qty);
+    updateStatus(product.name);
+    updateModalStatus(product.name);
+  };
+  removeBtn.onclick = function() {
+    const qty = parseInt(select.value, 10);
+    removeFromCartWithQty(product.name, qty);
+    updateStatus(product.name);
+    updateModalStatus(product.name);
+  };
+
+  updateModalStatus(product.name);
+  modal.style.display = "flex";
+  // focus for accessibility
+  select.focus();
+}
