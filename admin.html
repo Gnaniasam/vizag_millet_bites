@@ -11,18 +11,31 @@
   <!-- Add Item Form -->
   <section>
     <h2>Add Item</h2>
-    <form id="addItemForm">
-      <input type="file" id="itemImage" accept="image/*" required><br>
-      <input type="text" id="itemName" placeholder="Name" required><br>
-      <textarea id="itemDesc" placeholder="Description" required></textarea><br>
-      <input type="number" id="itemPrice" placeholder="Price" required><br>
-      <input type="text" id="itemCategory" placeholder="Category" required><br>
-      <select id="itemStock">
-        <option value="in">In Stock</option>
-        <option value="out">Out of Stock</option>
-      </select><br>
-      <button type="submit">Add Item</button>
-    </form>
+<form id="addItemForm" enctype="multipart/form-data">
+  <input type="file" id="itemImage" accept="image/*" required><br>
+
+  <input type="text" id="itemName" placeholder="Name" required><br>
+  
+  <textarea id="itemDesc" placeholder="Description" required></textarea><br>
+  
+  <input type="number" id="itemPrice" placeholder="Price" required><br>
+  
+  <input type="text" id="itemCategory" placeholder="Category" required><br>
+  
+  <select id="itemType">
+    <option value="single">Single</option>
+    <option value="combo">Combo</option>
+  </select><br>
+
+  <input type="number" id="itemMinQty" placeholder="Min Quantity (e.g., 100 or 250)" required><br>
+
+  <select id="itemStock">
+    <option value="in">In Stock</option>
+    <option value="out">Out of Stock</option>
+  </select><br>
+
+  <button type="submit">Add Item</button>
+</form>
   </section>
 
   <!-- Items List -->
