@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   // Load cart and total from localStorage
   let cart = JSON.parse(localStorage.getItem("orderCart")) || {};
@@ -134,5 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Back to Cart function
 function goBackToCart() {
-  window.location.href = "index.html#menu";
+  window.history.back();
 }
+
