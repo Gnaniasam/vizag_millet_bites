@@ -53,9 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ---------- Products (with descriptions) ---------- */
 const products = [
   { name: "Combo Pack 1", image: "b1.jpeg", price: 999, type: "combo", category: "combo", minQty: null, description: "Premium combo - assorted millet snacks, great for gifting." },
-  { name: "Combo Pack 2", image: "b2.jpeg", price: 299, type: "combo", category: "combo", description: "Tasty combo with a mix of crunchy favourites." },
-  { name: "Combo Pack 3", image: "b3.jpeg", price: 399, type: "combo", category: "combo", description: "Value combo for daily snacking." },
-  { name: "Combo Pack 4", image: "b4.jpeg", price: 599, type: "combo", category: "combo", description: "Pack of 9 items Any 7 items each 100 grams Any 2 items Each 150 Grams Total 1 Kg Free shipping anywhere in India Special offer - 100 Grams Dry Fruit Laddu Free Free Free." },
+  { name: "Combo Pack 2", image: "b2.jpeg", price: 299, type: "combo", category: "combo", description: "Pack of 9 items Each 50 Grams Total 450 Grams Price - 299 Free shipping." },
+  { name: "Combo Pack 3", image: "b3.jpeg", price: 399, type: "combo", category: "combo", description: "Pack of 7 items Each 100 Grams Total 700 Grams Free shipping ." },
+  { name: "Combo Pack 4", image: "b4.jpeg", price: 599, type: "combo", category: "combo", description: "Pack of 9 items Any 7 items each 100 grams Any 2 items Each 150 Grams Total 1 Kg Free shipping anywhere in India Special offer - 100 Grams Dry Fruit Laddu Free." },
 
   { name: "Ragi Mixture", image: "Ragi Mixture.jpeg", price: 60, type: "weight", category: "hots", description: "Crunchy and wholesome Ragi mixture — evening snack." },
   { name: "Ragi Chegodilu", image: "Ragi Chegodilu.jpeg", price: 60, type: "weight", category: "hots", description: "Traditional chegodilu made from ragi." },
