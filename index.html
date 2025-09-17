@@ -1,4 +1,4 @@
-<!-- index.html - Adding search and filter elements -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,25 +33,14 @@
     <a href="#home"><h1>Millet Bites</h1></a>
     <div class="header-right">
       <nav>
-        <a href="#home">Home</a>
         <a href="#menu">Menu</a>
         <a href="#about">About Us</a>
         <a href="#contact">Contact</a>
         <a href="#reviews">Reviews</a>
       </nav>
-      <div class="header-icons">
-        <div class="search-container">
-          <input type="text" id="searchInput" placeholder="Search products..." />
-          <button id="searchBtn">🔍</button>
-        </div>
-        <div class="cart-icon" id="cartIcon">
-          <img src="cart.png" width="60" height="60" alt="Cart">
-          <span class="cart-count" id="cartCount">0</span>
-        </div>
-        <div class="wishlist-icon" id="wishlistIcon">
-          <img src="heart.png" width="50" height="50" alt="Wishlist">
-          <span class="wishlist-count" id="wishlistCount">0</span>
-        </div>
+      <div class="cart-icon" id="cartIcon">
+        <img src="cart.png" width="60" height="60" alt="Cart">
+        <span class="cart-count" id="cartCount">0</span>
       </div>
     </div>
   </header>
@@ -80,43 +69,16 @@
   <section id="menu" class="menu">
     <div class="menu-header">
       <h2>Our Menu</h2>
-      <div class="header-icons">
-        <div class="cart-icon" id="cartIcon2">
-          <img src="cart.png" width="60" height="60" alt="Cart">
-          <span class="cart-count" id="cartCount2">0</span>
-        </div>
-        <div class="wishlist-icon" id="wishlistIcon2">
-          <img src="heart.png" width="50" height="50" alt="Wishlist">
-          <span class="wishlist-count" id="wishlistCount2">0</span>
-        </div>
+      <div class="cart-icon" id="cartIcon2" style="text-align: right; font-weight: bold; padding: 5px 5px;">
+        <img src="cart.png" width="60" height="60" alt="Cart">
+        <span class="cart-count" id="cartCount2">0</span>
       </div>
     </div>
-    
-    <div class="filter-container">
-      <div class="search-filter">
-        <input type="text" id="productSearch" placeholder="Search products..." />
-        <button id="clearSearch">Clear</button>
-      </div>
-      <div class="filter-options">
-        <label>Filter by:</label>
-        <select id="priceFilter">
-          <option value="all">All Prices</option>
-          <option value="0-100">Under ₹100</option>
-          <option value="100-300">₹100 - ₹300</option>
-          <option value="300-500">₹300 - ₹500</option>
-          <option value="500+">₹500+</option>
-        </select>
-        <select id="categoryFilter">
-          <option value="all">All Categories</option>
-          <option value="combo">Combos</option>
-          <option value="hots">Hots</option>
-          <option value="sweets">Sweets</option>
-          <option value="dryfruits">Dry Fruits</option>
-        </select>
-        <button id="applyFilters">Apply Filters</button>
-      </div>
-    </div>
-    
+  <!-- ADD SEARCH BAR HERE -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search products..." oninput="filterProducts()">
+    <button onclick="clearSearch()">Clear</button>
+  </div>
     <div class="product-grid" id="category-grid"></div>
     <div class="product-grid" id="product-grid" style="margin-top: 30px;"></div>
   </section>
@@ -213,18 +175,6 @@
         <button id="modalAddBtn">+</button>
       </div>
       <div id="modalStatus"></div>
-      <button id="addToWishlist" class="wishlist-btn">❤️ Add to Wishlist</button>
-    </div>
-  </div>
-
-  <!-- Wishlist Panel -->
-  <div class="wishlist-panel" id="wishlistPanel">
-    <div class="wishlist-panel-header">
-      <h3>Your Wishlist</h3>
-      <button class="close-wishlist" id="closeWishlist">&times;</button>
-    </div>
-    <div class="wishlist-items" id="wishlistItems">
-      <div class="empty-wishlist">Your wishlist is empty</div>
     </div>
   </div>
 
