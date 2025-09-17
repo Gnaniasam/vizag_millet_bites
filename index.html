@@ -10,6 +10,7 @@
 </head>
 <body>
   <div class="overlay" id="overlay"></div>
+
   <div class="cart-panel" id="cartPanel">
     <div class="cart-panel-header">
       <h3>Your Cart</h3>
@@ -42,8 +43,9 @@
       </div>
     </div>
   </header>
+
   <div class="scroll"><span>🎉Healthy Rakhi, Happy Rakhi – Celebrate with Nutritious Millets!🎉</span></div>
-  
+
   <section id="home" class="hero">
     <div class="slideshow-container">
       <a href="#menu"><img class="slides" src="b1.jpeg" alt="Combo 1" /></a>
@@ -129,8 +131,9 @@
     </div>
     &copy; 2025 Millet Bites. All rights reserved.
   </footer>
+
   <a href="https://wa.me/919949840365" class="whatsapp-float" target="_blank">💬</a>
-  
+
   <!-- Success Modal -->
   <div id="successModal" class="modal">
     <div class="modal-content">
@@ -154,7 +157,7 @@
 
   <!-- Product Popup Modal -->
   <div id="productModal" class="modal">
-    <div class="modal-content product-popup">
+    <div class="modal-content product-popup" id="productModalContent">
       <span class="close" id="closeProductModal">&times;</span>
       <img id="modalProductImage" src="" alt="Product" />
       <h2 id="modalProductName"></h2>
@@ -169,14 +172,6 @@
     </div>
   </div>
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
   <script src="script.js"></script>
 </body>
 </html>
