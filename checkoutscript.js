@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   // Load cart and total from localStorage
   let cart = JSON.parse(localStorage.getItem("orderCart")) || {};
