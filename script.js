@@ -108,6 +108,8 @@ categoryGrid.appendChild(allCard);
 }
 
 function renderProductsByCategory(category) {
+div.querySelector("img").addEventListener("click", () => openProductModal(product));
+div.querySelector("h4").addEventListener("click", () => openProductModal(product));
   const grid = document.getElementById("product-grid");
   grid.innerHTML = "";
 
@@ -416,3 +418,71 @@ window.addEventListener("load", function () {
     localStorage.removeItem("paymentFailure");
   }
 });
+
+function openProductModal(product) {
+  const modal = document.getElementById("productModal");
+
+  document.getElementById("modalProductImage").src = product.image;
+  document.getElementById("modalProductName").textContent = product.name;
+  document.getElementById("modalProductDescription").textContent = product.description || "Delicious millet snack.";
+  document.getElementById("modalProductPrice").textContent = `₹${product.price}`;
+
+  const select = document.getElementById("modalQuantity");
+  select.innerHTML = "";
+
+  if (product.type === "combo") {
+    [1, 2, 3, 5].forEach(q => {
+      const opt = document.createElement("option");
+      opt.value = q;
+      opt.textContent = `${q} Pack${q > 1 ? "s" : ""}`;
+      select.appendChild(opt);
+    });
+  } else {
+    const options = product.minQty === 250
+      ? [{ value: 250, label: "250g" }, { value: 500, label: "500g" }, { value: 1000, label: "1KG" }]
+      : [{ value: 100, label: "100g" }, { value: 250, label: "250g" }, { value: 500, label: "500g" }, { value: 1000, label: "1KG" }];
+    options.forEach(optData => {
+      const opt = document.createElement("option");
+      opt.value = optData.value;
+      opt.textContent = optData.label;
+      select.appendChild(opt);
+    });
+  }
+
+  document.getElementById("modalAddBtn").onclick = () => {
+    addToCart(product.name);
+    updateModalStatus(product.name);
+  };
+  document.getElementById("modalRemoveBtn").onclick = () => {
+    removeFromCart(product.name);
+    updateModalStatus(product.name);
+  };
+
+  updateModalStatus(product.name);
+  modal.style.display = "flex";
+}
+
+function updateModalStatus(productName) {
+  const status = document.getElementById("modalStatus");
+  if (cart[productName]) {
+    const item = cart[productName];
+    if (item.product.type === "combo") {
+      status.textContent = `In cart: ${item.quantity} Pack${item.quantity > 1 ? 's' : ''}`;
+    } else {
+      status.textContent = `In cart: ${item.quantity >= 1000 ? (item.quantity / 1000).toFixed(2) + ' kg' : item.quantity + ' g'}`;
+    }
+  } else {
+    status.textContent = "Not in cart";
+  }
+}
+
+document.getElementById("closeProductModal").onclick = () => {
+  document.getElementById("productModal").style.display = "none";
+};
+
+window.onclick = function(event) {
+  const modal = document.getElementById("productModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+};
