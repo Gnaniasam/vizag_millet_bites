@@ -32,34 +32,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ✅ Add Item
-  addItemForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+addItemForm.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-    const file = document.getElementById("itemImage").files[0];
-    if (!file) return;
+  const file = document.getElementById("itemImage").files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const newItem = {
-        image: event.target.result,
-        name: document.getElementById("itemName").value,
-        description: document.getElementById("itemDesc").value,
-        price: parseFloat(document.getElementById("itemPrice").value),
-        category: document.getElementById("itemCategory").value,
-        stock:
-          document.getElementById("itemStock").value === "in"
-            ? "In Stock"
-            : "Out of Stock",
-      };
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("name", document.getElementById("itemName").value);
+  formData.append("description", document.getElementById("itemDesc").value);
+  formData.append("price", parseFloat(document.getElementById("itemPrice").value));
+  formData.append("category", document.getElementById("itemCategory").value);
+  formData.append("type", document.getElementById("itemType").value);
+  formData.append("minQty", parseInt(document.getElementById("itemMinQty").value));
+  formData.append("stock_status", document.getElementById("itemStock").value === "in" ? "In Stock" : "Out of Stock");
 
-      items.push(newItem);
-      localStorage.setItem("items", JSON.stringify(items));
-      renderItems();
+  fetch("php/add_product.php", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.success){
+      alert("Product added successfully!");
+      loadProducts(); // reload products in admin panel
       addItemForm.reset();
-    };
-
-    reader.readAsDataURL(file);
-  });
+    } else {
+      alert("Failed to add product.");
+    }
+  })
+});
 
   // ✅ Remove item
   window.removeItem = function (index) {
