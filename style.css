@@ -273,3 +273,19 @@ footer a:hover { color: #c8e6c9; }
 .search-container button:hover {
   background: #1b5e20;
 }
+
+.screenshot-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff7043;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.screenshot-btn:hover {
+  background: #e64a19;
+}
