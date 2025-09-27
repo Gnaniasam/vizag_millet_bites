@@ -1,44 +1,26 @@
 // Product List with Badges
 const products = [
-  {
-    name: "Dry Fruit Laddu",
-    type: "weight",
-    price: 300,
-    pricePer: 250,
-    category: "Sweets",
-    image: "images/laddu.jpg",
-    description: "Delicious dry fruit laddu.",
-    badge: "20% OFF"
-  },
-  {
-    name: "Combo Pack 1",
-    type: "combo",
-    price: 500,
-    category: "Combos",
-    image: "images/combo1.jpg",
-    description: "Special combo pack.",
-    badge: "Best Offer"
-  },
-  {
-    name: "Cashew Bar",
-    type: "weight",
-    price: 250,
-    pricePer: 170,
-    category: "Snacks",
-    image: "images/cashewbar.jpg",
-    description: "Rich cashew bar.",
-    badge: "Limited Edition"
-  },
-  {
-    name: "Kaju Katli",
-    type: "weight",
-    price: 450,
-    pricePer: 250,
-    category: "Sweets",
-    image: "images/kajukatli.jpg",
-    description: "Premium cashew sweet.",
-    badge: "New Arrival"
-  }
+  { name: "Combo Pack 1", image: "b1.jpeg", price: 999, type: "combo", category: "combo", minQty: null, description: "Premium combo - assorted millet snacks, great for gifting.", badge: "Best Offer" },
+  { name: "Combo Pack 2", image: "b2.jpeg", price: 299, type: "combo", category: "combo", description: "Tasty combo with a mix of crunchy favourites.", badge: "Best Offer" },
+  { name: "Combo Pack 3", image: "b3.jpeg", price: 399, type: "combo", category: "combo", description: "Value combo for daily snacking.", badge: "Best Offer" },
+  { name: "Combo Pack 4", image: "b4.jpeg", price: 599, type: "combo", category: "combo", description: "Assorted premium millet selections.", badge: "Best Offer" },
+
+  { name: "Ragi Mixture", image: "Ragi Mixture.jpeg", price: 60, type: "weight", category: "hots", minQty: null, description: "Crunchy and wholesome Ragi mixture — evening snack.", badge: "Best Offer" },
+  { name: "Ragi Chegodilu", image: "Ragi Chegodilu.jpeg", price: 60, type: "weight", category: "hots", description: "Traditional chegodilu made from ragi.", badge: "Best Offer" },
+  { name: "Ragi Murukkulu", image: "Ragi Murukkulu.jpeg", price: 60, type: "weight", category: "hots", description: "Crispy murukkulu with millet goodness.", badge: "Best Offer" },
+  { name: "Jowar Mixture", image: "Jowar Mixture.jpeg", price: 60, type: "weight", category: "hots", description: "Light and tasty jowar mixture.", badge: "Best Offer" },
+  { name: "Jowar Murukkulu", image: "Jowar Murukkulu.jpeg", price: 60, type: "weight", category: "hots", description: "Jowar murukkulu - crunchy, less oil.", badge: "Best Offer" },
+  { name: "Jowar Ribbon Pakodi", image: "Jowar Ribbon Pakodi.jpeg", price: 60, type: "weight", category: "hots", description: "Ribbon pakodi with jowar flour.", badge: "Best Offer" },
+  { name: "Foxtail Sev", image: "Foxtail Sev.jpeg", price: 60, type: "weight", category: "hots", description: "Sev made from foxtail millet.", badge: "Best Offer" },
+  { name: "Arikalu Jantikalu", image: "Arikalu Jantikalu.jpeg", price: 60, type: "weight", category: "hots", description: "Traditional arikalu/jantikalu mix.", badge: "Best Offer" },
+  { name: "Samalu Boondi", image: "Samalu Boondi.jpeg", price: 60, type: "weight", category: "hots", description: "Small boondi snacks made from millet.", badge: "Best Offer" },
+
+  { name: "Dry Fruit Mixture", image: "Dry Fruit Mixture.jpeg", price: 180, type: "weight", category: "dryfruits", description: "Energy-dense dry fruit mix with millets.", badge: "Best Offer" },
+  { name: "Dry Fruit Laddu", image: "Dry Fruit Laddu.jpeg", price: 300, type: "weight", category: "sweets", minQty: 250, pricePer: 250, description: "Rich laddus with dry fruits — sweet & healthy.", badge: "Best Offer" },
+  { name: "Cashew Bar", image: "Cashew Bar.jpeg", price: 200, type: "combo", category: "dryfruits", minQty:170, description: "Crunchy cashew bars, great snack.", badge: "Best Offer" },
+  { name: "Panchadara Gavvalu", image: "Panchadara Gavvalu.jpg", price: 100, type: "weight", category: "sweets", minQty: 250, pricePer: 250, description: "Sweet gavvalu made with panchadara.", badge: "Best Offer" },
+  { name: "Bellam Gavvalu", image: "Bellam Gavvalu.jpeg", price: 100, type: "weight", category: "sweets", minQty: 250, pricePer: 250, description: "Bellam (jaggery) gavvalu — traditional sweet.", badge: "Best Offer" },
+  { name: "Hot Gavvalu", image: "Hot Gavvalu.jpeg", price: 100, type: "weight", category: "hots", minQty: 250, pricePer: 250, description: "Spicy hot gavvalu for spicy lovers.", badge: "Best Offer" }
 ];
 
 // State
